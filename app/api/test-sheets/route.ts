@@ -1,16 +1,10 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-    console.log("[TEST] === /api/test-sheets called ===");
-
     try {
         const sheetId = process.env.GOOGLE_SHEET_ID;
         const email = process.env.GOOGLE_CLIENT_EMAIL;
         const key = process.env.GOOGLE_PRIVATE_KEY?.substring(0, 50) + "...";
-
-        console.log("[TEST] Sheet ID:", sheetId);
-        console.log("[TEST] Email:", email);
-        console.log("[TEST] Key preview:", key);
 
         if (!sheetId || !email || !key) {
             return NextResponse.json(
@@ -24,22 +18,13 @@ export async function GET() {
             { headers: {} },
         );
 
-        console.log("[TEST] API response status:", response.status);
-
         if (!response.ok) {
             const errText = await response.text();
             return NextResponse.json({ error: errText }, { status: 500 });
         }
 
         const data = await response.json();
-        console.log("[TEST] Raw API response:", JSON.stringify(data, null, 2));
-
         const values = data.values || [];
-        console.log("[TEST] Rows count:", values.length);
-        console.log(
-            "[TEST] First row preview:",
-            JSON.stringify(values[0]?.slice(0, 3), null, 2),
-        );
 
         return NextResponse.json({ values });
     } catch (e) {

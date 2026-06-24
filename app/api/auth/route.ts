@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Add console.logs everywhere for debuging
-
 export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, username, password } = body;

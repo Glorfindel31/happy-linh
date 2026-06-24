@@ -6,13 +6,6 @@ import { google } from "googleapis";
 export async function getQuotes(): Promise<
     { text: string; row: number; isRead: boolean }[]
 > {
-    // SINGLE LOG - check if anything appears in terminal
-    console.log("[sheets:getQuotes] === STARTING FUNCTION ===");
-    console.log(
-        "[sheets:getQuotes] GOOGLE_CLIENT_EMAIL:",
-        process.env.GOOGLE_CLIENT_EMAIL,
-    );
-
     try {
         const auth = await google.auth.getClient({
             credentials: {
@@ -32,11 +25,6 @@ export async function getQuotes(): Promise<
             range: "Sheet1!A:B",
         });
 
-        console.log(
-            "[sheets:getQuotes] Response.data:",
-            JSON.stringify(response.data, null, 2),
-        );
-
         const rawValues = response.data.values || [];
 
         const rows = rawValues.map((rowVal, i) => {
@@ -45,7 +33,6 @@ export async function getQuotes(): Promise<
             return { text, row: i + 1, isRead };
         });
 
-        console.log("[sheets:getQuotes] === RETURNING ROWS ===");
         return rows;
     } catch (e) {
         if (e instanceof Error) {
@@ -58,8 +45,6 @@ export async function getQuotes(): Promise<
 }
 
 export async function markRead(row: number): Promise<void> {
-    console.log(`[markRead] Marking row ${row} as read`);
-
     const auth = await google.auth.getClient({
         credentials: {
             client_email: process.env.GOOGLE_CLIENT_EMAIL!,
@@ -86,28 +71,9 @@ export async function getState(): Promise<{
     nextUnreadRow: number | null;
     firstUnreadQuote: string | null;
 }> {
-    console.log("[getState] Calling getQuotes()");
-
     const rows = await getQuotes();
-
     const unreadRows = rows.filter((r) => !r.isRead);
     const lastReadIndex = rows.findIndex((r) => r.isRead);
-
-    console.log(
-        "[getState] === RETURNING STATE ===",
-        JSON.stringify(
-            {
-                remaining: unreadRows.length,
-                lastReadQuote:
-                    lastReadIndex >= 0 ? rows[lastReadIndex].text : null,
-                nextUnreadRow: unreadRows.length > 0 ? unreadRows[0].row : null,
-                firstUnreadQuote:
-                    unreadRows.length > 0 ? unreadRows[0].text : null,
-            },
-            null,
-            2,
-        ),
-    );
 
     return {
         remaining: unreadRows.length,
