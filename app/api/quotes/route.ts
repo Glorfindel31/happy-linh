@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
 
         const state = await getState();
 
+        // Return the new state with fresh cache headers
         return NextResponse.json(state, {
             headers: {
                 "Cache-Control":

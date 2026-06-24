@@ -60,7 +60,13 @@ export async function markRead(row: number): Promise<void> {
         range: `Sheet1!B${row}`,
         valueInputOption: "USER_ENTERED",
         requestBody: {
-            values: [[new Date().toISOString()]],
+            values: [
+                [
+                    new Date().toLocaleString("en-US", {
+                        timeZone: "Asia/Ho_Chi_Minh",
+                    }),
+                ],
+            ],
         },
     });
 }

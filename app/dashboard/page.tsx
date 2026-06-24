@@ -13,8 +13,6 @@ export default function DashboardPage() {
     const [state, setState] = useState<AppState | null>(null);
     const [phase, setPhase] = useState<"ready" | "typing" | "done">("ready");
     const [typedText, setTypedText] = useState("");
-    // ponytail: derive these from state directly in render phase - no setState in effect
-    const remaining = state?.remaining ?? 0;
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -24,21 +22,22 @@ export default function DashboardPage() {
     async function fetchState() {
         try {
             const res = await fetch("/api/quotes");
-            if (!res.ok) {
+            if (!res.ok)
                 throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-            }
-            const data = await res.json();
+            const data: AppState = await res.json();
             setState(data);
-        } catch (e: unknown) {
-            if (e instanceof Error) {
-                setError(e.message);
-            } else {
-                setError(String(e));
+            if (data.firstUnreadQuote) {
+                // First open or returning: show the next unread quote fully, no typewriter.
+                // User triggers the typewriter by clicking Next (which marks this row).
+                setTypedText(data.firstUnreadQuote);
+                setPhase("done");
             }
+            // If firstUnreadQuote is null, remaining === 0 → allDone renders instead.
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : String(e));
         }
     }
-
-    // ponytail: derive displayText from state directly in render phase, not in effect
+    // ponytail: derive displayText from state directly in render phase
     const displayText = (() => {
         if (!state) return "";
 
@@ -87,43 +86,69 @@ export default function DashboardPage() {
 
         const nextState = await res.json();
         setState(nextState);
+        setTypedText("");
+        setPhase("typing");
     }
-
-    const title = !state ? "happy-linh" : `${remaining} remaining`;
 
     const allDone = !state || state.remaining === 0;
 
     if (error) {
         return (
-            <div>
-                <p>{title}</p>
-                <div className="text-center space-y-4">
-                    <div>Could not load quotes. Try again.</div>
-                    <button onClick={fetchState}>Retry</button>
-                </div>
+            <div className="min-h-screen bg-pink-100 flex flex-col items-center justify-center px-4 py-8 gap-4">
+                <h2 className="font-typewriter text-xl text-pink-700">
+                    {error}
+                </h2>
+                <button
+                    onClick={fetchState}
+                    className="bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-full px-8 py-3 transition-colors duration-150"
+                >
+                    Retry
+                </button>
             </div>
         );
     }
 
     return (
-        <div>
-            <h1>{title}</h1>
-            <div className="space-y-4">
-                {!allDone && (
-                    <div>
+        <div className="min-h-screen bg-pink-100 flex flex-col items-center justify-center px-4 py-8 gap-4">
+            {!allDone && (
+                <div className="bg-pink-200 text-pink-800 text-xs font-medium rounded-full px-4 py-1.5 tracking-wide whitespace-nowrap">
+                    {state?.remaining} quotes left
+                </div>
+            )}
+
+            {!allDone && (
+                <div className="w-full max-w-sm bg-white rounded-3xl border border-pink-200 p-8 shadow-sm flex flex-col items-center gap-4">
+                    <div className="font-typewriter text-xl leading-relaxed text-stone-800 text-center min-h-30 flex items-center justify-center">
                         {typedText}
-                        {phase === "typing" && <span></span>}
+                        {phase === "typing" && (
+                            <span
+                                className="inline-block w-0.5 h-[1.1em] bg-pink-400 ml-0.5 align-middle animate-pulse"
+                                aria-hidden="true"
+                            />
+                        )}
                     </div>
-                )}
 
-                {!allDone && (
-                    <button onClick={handleNext} disabled={phase === "typing"}>
-                        Next
-                    </button>
-                )}
+                    {!allDone && (
+                        <button
+                            onClick={handleNext}
+                            disabled={
+                                !state ||
+                                phase === "typing" ||
+                                state.remaining === 0
+                            }
+                            className="bg-pink-500 hover:bg-pink-600 active:bg-pink-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium rounded-full px-10 py-3 text-sm tracking-wide transition-colors duration-150"
+                        >
+                            Next
+                        </button>
+                    )}
+                </div>
+            )}
 
-                {allDone && <p>All done.</p>}
-            </div>
+            {allDone && (
+                <div className="bg-pink-200 text-pink-800 font-medium rounded-full px-6 py-3 tracking-wide">
+                    all done ✓
+                </div>
+            )}
         </div>
     );
 }

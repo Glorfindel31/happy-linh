@@ -1,10 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
     const router = useRouter();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
     useEffect(() => {
         if ((document.cookie || "").includes("session=authenticated")) {
@@ -12,11 +15,7 @@ export default function LoginPage() {
         }
     }, [router]);
 
-    const handleLogin = async (
-        e: React.FormEvent<HTMLDivElement>,
-        username: string,
-        password: string,
-    ) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         const res = await fetch("/api/auth", {
             method: "POST",
@@ -27,99 +26,60 @@ export default function LoginPage() {
         if (res.ok) {
             router.push("/dashboard");
         } else {
-            alert("Wrong credentials.");
+            setError("Wrong credentials.");
         }
     };
 
     return (
-        <div className=" bg-blue-100 w-auto">
-            <h1>happy-linh</h1>
-            <div
-                className="bg-pink-600"
-                onClick={(e) => {
-                    const target = e.target as HTMLElement;
-                    if (target.tagName === "BUTTON") {
-                        const btn = target.closest("button");
-                        if (btn) {
-                            const [username, password] = [
-                                (
-                                    document.getElementById(
-                                        "username",
-                                    ) as HTMLInputElement
-                                ).value,
-                                (
-                                    document.getElementById(
-                                        "password",
-                                    ) as HTMLInputElement
-                                ).value,
-                            ];
-                            const event = new Event("submit", {
-                                bubbles: true,
-                            });
-                            handleLogin(
-                                event as unknown as React.FormEvent<HTMLDivElement>,
-                                username,
-                                password,
-                            );
-                        }
-                    }
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        const target = e.target as HTMLElement;
-                        if (
-                            target.tagName === "INPUT" &&
-                            target.id === "password"
-                        ) {
-                            const [username, password] = [
-                                (
-                                    document.getElementById(
-                                        "username",
-                                    ) as HTMLInputElement
-                                ).value,
-                                (
-                                    document.getElementById(
-                                        "password",
-                                    ) as HTMLInputElement
-                                ).value,
-                            ];
-                            const event = new Event("submit", {
-                                bubbles: true,
-                            });
-                            handleLogin(
-                                event as unknown as React.FormEvent<HTMLDivElement>,
-                                username,
-                                password,
-                            );
-                        }
-                    }
-                }}
-            >
-                <input id="username" type="text" placeholder="Username" />
-                <input id="password" type="password" placeholder="Password" />
-                <button
-                    type="button"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        const username = (
-                            document.getElementById(
-                                "username",
-                            ) as HTMLInputElement
-                        ).value;
-                        const password = (
-                            document.getElementById(
-                                "password",
-                            ) as HTMLInputElement
-                        ).value;
-                        handleLogin(
-                            e as unknown as React.FormEvent<HTMLDivElement>,
-                            username,
-                            password,
-                        );
-                    }}
-                >
-                    Enter
-                </button>
+        <div className="min-h-screen bg-pink-100 flex items-center justify-center px-4">
+            <div className="w-full max-w-sm bg-white rounded-3xl border border-pink-200 p-8 shadow-sm">
+                <h1 className="font-typewriter text-2xl text-pink-700 text-center tracking-wide mb-8">
+                    happy-linh
+                </h1>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-xs font-medium text-pink-600 uppercase tracking-wide mb-1">
+                            Username
+                        </label>
+                        <input
+                            id="username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-sm text-stone-800 placeholder-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition"
+                            placeholder="Username"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-medium text-pink-600 uppercase tracking-wide mb-1">
+                            Password
+                        </label>
+                        <input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-sm text-stone-800 placeholder-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition"
+                            placeholder="Password"
+                        />
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleLogin}
+                        className="w-full bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white font-medium rounded-full py-3 text-sm tracking-wide transition-colors duration-150"
+                    >
+                        Enter
+                    </button>
+
+                    {error && (
+                        <div className="text-center text-sm text-rose-500 mt-3">
+                            {error}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
