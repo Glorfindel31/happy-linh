@@ -1,0 +1,56 @@
+/* FallingIcons.module.css */
+
+/* ── Overlay ──────────────────────────────────────────────── */
+.container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none; /* never blocks clicks */
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* ── Individual particle ─────────────────────────────────── */
+.particle {
+    position: absolute;
+    top: -64px; /* start just off-screen above */
+    animation: snowfall linear infinite;
+    will-change: transform; /* GPU-accelerated */
+    user-select: none;
+}
+
+.particle img,
+.particle svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Keyframes ───────────────────────────────────────────── */
+/*
+  Three-point sway: neutral → sway right → sway left → neutral
+  Combined with continuous rotation via --spin CSS variable.
+*/
+@keyframes snowfall {
+    0% {
+        transform: translateY(0px) translateX(0px) rotate(0deg);
+    }
+    30% {
+        transform: translateY(30vh) translateX(var(--sway))
+            rotate(calc(var(--spin) * 0.3));
+    }
+    65% {
+        transform: translateY(65vh) translateX(calc(var(--sway) * -0.4))
+            rotate(calc(var(--spin) * 0.65));
+    }
+    100% {
+        transform: translateY(115vh) translateX(0px) rotate(var(--spin));
+    }
+}
+
+/* ── Accessibility: respect reduced motion ───────────────── */
+/* @media (prefers-reduced-motion: reduce) {
+    .particle {
+        animation: none;
+        display: none;
+    }
+} */

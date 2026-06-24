@@ -34,37 +34,33 @@ export default function LoginPage() {
         <div className="min-h-screen bg-pink-100 flex items-center justify-center px-4">
             <div className="w-full max-w-sm bg-white rounded-3xl border border-pink-200 p-8 shadow-sm">
                 <h1 className="font-typewriter text-2xl text-pink-700 text-center tracking-wide mb-8">
-                    happy-linh
+                    Welcome to Your happy place
                 </h1>
 
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-xs font-medium text-pink-600 uppercase tracking-wide mb-1">
-                            Username
-                        </label>
-                        <input
-                            id="username"
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-sm text-stone-800 placeholder-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition"
-                            placeholder="Username"
-                        />
-                    </div>
+                <form className="space-y-4">
+                    <label className="block text-xs font-medium text-pink-600 uppercase tracking-wide mb-1">
+                        Username
+                    </label>
+                    <input
+                        id="username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-sm text-stone-800 placeholder-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition"
+                        placeholder="Username"
+                    />
 
-                    <div>
-                        <label className="block text-xs font-medium text-pink-600 uppercase tracking-wide mb-1">
-                            Password
-                        </label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-sm text-stone-800 placeholder-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition"
-                            placeholder="Password"
-                        />
-                    </div>
+                    <label className="block text-xs font-medium text-pink-600 uppercase tracking-wide mb-1">
+                        Password
+                    </label>
+                    <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 text-sm text-stone-800 placeholder-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition"
+                        placeholder="Password"
+                    />
 
                     <button
                         type="button"
@@ -79,7 +75,7 @@ export default function LoginPage() {
                             {error}
                         </div>
                     )}
-                </div>
+                </form>
             </div>
         </div>
     );

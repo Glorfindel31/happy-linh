@@ -118,7 +118,7 @@ export default function DashboardPage() {
 
             {!allDone && (
                 <div className="w-full max-w-sm bg-white rounded-3xl border border-pink-200 p-8 shadow-sm flex flex-col items-center gap-4">
-                    <div className="font-typewriter text-xl leading-relaxed text-stone-800 text-center min-h-30 flex items-center justify-center">
+                    <div className="text-xl font-typewriter leading-relaxed text-stone-800 text-center min-h-30 flex items-center justify-center">
                         {typedText}
                         {phase === "typing" && (
                             <span
