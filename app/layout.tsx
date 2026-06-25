@@ -53,7 +53,7 @@ export default function RootLayout({
                         k13.src,
                         k14.src,
                     ]}
-                    count={70}
+                    count={30}
                 />
                 {children}
             </body>

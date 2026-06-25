@@ -63,7 +63,7 @@ export default function LoginPage() {
                     />
 
                     <button
-                        type="button"
+                        type="submit"
                         onClick={handleLogin}
                         className="w-full bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white font-medium rounded-full py-3 text-sm tracking-wide transition-colors duration-150"
                     >
