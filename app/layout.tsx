@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Special_Elite } from "next/font/google";
-import FallingIcons from "@/lib/fallingIcones";
+import { Special_Elite, Geist } from "next/font/google";
+import { FallingIconsShell } from "@/components/FallingIconsShell";
+import { Toaster } from "@/components/ui/sonner";
 import k1 from "../public/1.svg";
 import k2 from "../public/2.svg";
 import k3 from "../public/3.svg";
@@ -17,6 +18,9 @@ import k13 from "../public/13.svg";
 import k14 from "../public/14.svg";
 
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const typewriter = Special_Elite({
     weight: "400",
@@ -34,9 +38,9 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className={typewriter.variable}>
+        <html lang="en" className={cn("font-sans", geist.variable, typewriter.variable)}>
             <body className="min-h-screen bg-pink-100 font-sans antialiased">
-                <FallingIcons
+                <FallingIconsShell
                     icons={[
                         k1.src,
                         k2.src,
@@ -53,9 +57,10 @@ export default function RootLayout({
                         k13.src,
                         k14.src,
                     ]}
-                    count={30}
-                />
-                {children}
+                >
+                    {children}
+                    <Toaster />
+                </FallingIconsShell>
             </body>
         </html>
     );

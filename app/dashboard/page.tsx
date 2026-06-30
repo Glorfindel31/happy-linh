@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { showWelcomeToast } from "@/lib/toastOptions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { FallingIconsSlider } from "@/components/FallingIconsSlider";
 
 type AppState = {
     remaining: number;
@@ -17,6 +22,14 @@ export default function DashboardPage() {
 
     useEffect(() => {
         fetchState();
+        fetch("/api/visit", { method: "POST" })
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.showWelcome) {
+                    showWelcomeToast();
+                }
+            })
+            .catch(() => {});
     }, []);
 
     async function fetchState() {
@@ -27,28 +40,19 @@ export default function DashboardPage() {
             const data: AppState = await res.json();
             setState(data);
             if (data.firstUnreadQuote) {
-                // First open or returning: show the next unread quote fully, no typewriter.
-                // User triggers the typewriter by clicking Next (which marks this row).
                 setTypedText(data.firstUnreadQuote);
                 setPhase("done");
             }
-            // If firstUnreadQuote is null, remaining === 0 → allDone renders instead.
         } catch (e: unknown) {
             setError(e instanceof Error ? e.message : String(e));
         }
     }
+
     // ponytail: derive displayText from state directly in render phase
     const displayText = (() => {
         if (!state) return "";
-
-        if (state.remaining > 0 && state.firstUnreadQuote !== null) {
-            return state.firstUnreadQuote;
-        }
-
-        if (state.lastReadQuote !== null) {
-            return state.lastReadQuote;
-        }
-
+        if (state.remaining > 0 && state.firstUnreadQuote !== null) return state.firstUnreadQuote;
+        if (state.lastReadQuote !== null) return state.lastReadQuote;
         return "All quotes have been read.";
     })();
 
@@ -67,9 +71,7 @@ export default function DashboardPage() {
 
     async function handleNext() {
         setError(null);
-        if (!state || state.remaining === 0) {
-            return;
-        }
+        if (!state || state.remaining === 0) return;
 
         const res = await fetch("/api/quotes", {
             method: "POST",
@@ -78,10 +80,7 @@ export default function DashboardPage() {
         });
 
         if (!res.ok) {
-            console.error(
-                "[Dashboard:handleNext] POST failed:",
-                await res.text(),
-            );
+            console.error("[Dashboard:handleNext] POST failed:", await res.text());
         }
 
         const nextState = await res.json();
@@ -95,59 +94,51 @@ export default function DashboardPage() {
     if (error) {
         return (
             <div className="min-h-screen bg-pink-100 flex flex-col items-center justify-center px-4 py-8 gap-4">
-                <h2 className="font-typewriter text-xl text-pink-700">
-                    {error}
-                </h2>
-                <button
-                    onClick={fetchState}
-                    className="bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-full px-8 py-3 transition-colors duration-150"
-                >
+                <h2 className="font-typewriter text-xl text-pink-700">{error}</h2>
+                <Button onClick={fetchState} className="rounded-full px-8">
                     Retry
-                </button>
+                </Button>
             </div>
         );
     }
 
     return (
         <div className="min-h-screen bg-pink-100 flex flex-col items-center justify-center px-4 py-8 gap-4">
+            <FallingIconsSlider />
             {!allDone && (
-                <div className="bg-pink-200 text-pink-800 text-xs font-medium rounded-full px-4 py-1.5 tracking-wide whitespace-nowrap">
+                <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-xs tracking-wide whitespace-nowrap">
                     {state?.remaining} quotes left
-                </div>
+                </Badge>
             )}
 
             {!allDone && (
-                <div className="w-full max-w-sm bg-white rounded-3xl border border-pink-200 p-8 shadow-sm flex flex-col items-center gap-4">
-                    <div className="text-xl font-typewriter leading-relaxed text-stone-800 text-center min-h-30 flex items-center justify-center">
-                        {typedText}
-                        {phase === "typing" && (
-                            <span
-                                className="inline-block w-0.5 h-[1.1em] bg-pink-400 ml-0.5 align-middle animate-pulse"
-                                aria-hidden="true"
-                            />
-                        )}
-                    </div>
+                <Card className="w-full max-w-sm shadow-sm">
+                    <CardContent className="flex flex-col items-center gap-4 pt-2">
+                        <div className="text-xl font-typewriter leading-relaxed text-stone-800 text-center min-h-30 flex items-center justify-center">
+                            {typedText}
+                            {phase === "typing" && (
+                                <span
+                                    className="inline-block w-0.5 h-[1.1em] bg-pink-400 ml-0.5 align-middle animate-pulse"
+                                    aria-hidden="true"
+                                />
+                            )}
+                        </div>
 
-                    {!allDone && (
-                        <button
+                        <Button
                             onClick={handleNext}
-                            disabled={
-                                !state ||
-                                phase === "typing" ||
-                                state.remaining === 0
-                            }
-                            className="bg-pink-500 hover:bg-pink-600 active:bg-pink-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium rounded-full px-10 py-3 text-sm tracking-wide transition-colors duration-150"
+                            disabled={!state || phase === "typing" || state.remaining === 0}
+                            className="rounded-full px-10"
                         >
                             Next
-                        </button>
-                    )}
-                </div>
+                        </Button>
+                    </CardContent>
+                </Card>
             )}
 
             {allDone && (
-                <div className="bg-pink-200 text-pink-800 font-medium rounded-full px-6 py-3 tracking-wide">
+                <Badge variant="secondary" className="rounded-full px-6 py-3 text-sm tracking-wide">
                     all done ✓
-                </div>
+                </Badge>
             )}
         </div>
     );

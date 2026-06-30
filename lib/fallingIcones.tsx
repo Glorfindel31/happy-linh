@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
@@ -30,9 +31,11 @@ export default function FallingIcons({
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsMounted(true);
     }, []);
 
+    /* eslint-disable react-hooks/purity */
     const particles = useMemo<Particle[]>(() => {
         return Array.from({ length: count }, (_, i) => {
             const duration = 7 + Math.random() * 9;
@@ -51,6 +54,7 @@ export default function FallingIcons({
             };
         });
     }, [icons, count]);
+    /* eslint-enable react-hooks/purity */
 
     // Do not render anything until the client has mounted to prevent hydration errors
     if (!isMounted || !icons.length) return null;
@@ -75,7 +79,7 @@ export default function FallingIcons({
                     }
                 >
                     {typeof p.icon === "string" ? (
-                        <img
+                            <img
                             src={p.icon}
                             width="100%"
                             height="100%"
